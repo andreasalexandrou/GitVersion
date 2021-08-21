@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using GitVersion.Common;
 using GitVersion.Extensions;
 using LibGit2Sharp;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace GitVersion.VersionCalculation
 {
@@ -31,6 +31,7 @@ namespace GitVersion.VersionCalculation
             var servicePrefix = Context.FullConfiguration.ServicePrefix;
 
             var allTags = repositoryMetadataProvider.GetValidVersionTags(Context.Configuration.GitTagPrefix, olderThan, servicePrefix);
+            var releasedTags = repositoryMetadataProvider.GetReleaseValidVersionTags(Context.Configuration.GitTagPrefix, olderThan, servicePrefix, Context.Configuration.Tag);
 
             var tagsOnBranch = currentBranch
                 .Commits
@@ -46,7 +47,27 @@ namespace GitVersion.VersionCalculation
                 .Take(5)
                 .ToList();
 
-            return tagsOnBranch.Select(t => CreateBaseVersion(Context, t));
+            var releasedTagsOnBranch = currentBranch
+                .Commits
+                .SelectMany(commit => { return releasedTags.Where(t => IsValidTag(t.Item1, commit)); })
+                .Select(t =>
+                {
+                    if (t.Item1.PeeledTarget() is Commit)
+                        return new VersionTaggedCommit(t.Item1.PeeledTarget() as Commit, t.Item2, t.Item1.FriendlyName.Replace($"{servicePrefix}/", string.Empty));
+
+                    return null;
+                })
+                .Where(a => a != null)
+                .Take(5)
+                .ToList();
+
+            var result = new List<BaseVersion>();
+            result.AddRange(tagsOnBranch.Select(t => CreateBaseVersion(Context, t)));
+            result.AddRange(releasedTagsOnBranch.Select(t => CreateBaseVersion(Context, t)));
+
+            return result
+                .OrderByDescending(t => t.BaseVersionSource.Author.When)
+                .ToList();
         }
 
         private BaseVersion CreateBaseVersion(GitVersionContext context, VersionTaggedCommit version)

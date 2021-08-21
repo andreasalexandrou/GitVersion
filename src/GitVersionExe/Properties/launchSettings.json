@@ -2,7 +2,7 @@
   "profiles": {
     "GitVersionExe": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\code\\test\\ElectraCommon\" /output buildserver /nofetch"
+      "commandLineArgs": "\"C:\\code\\hyperio\\electra\\webs\\shells\\Hyperio.BackOffice.Shell\" /output buildserver /nofetch -config \"C:\\Temp\\GitVersion.yml\""
     }
   }
 }
