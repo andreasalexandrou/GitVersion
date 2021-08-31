@@ -31,7 +31,24 @@ namespace GitVersion.VersionCalculation
             var servicePrefix = Context.FullConfiguration.ServicePrefix;
 
             var allTags = repositoryMetadataProvider.GetValidVersionTags(Context.Configuration.GitTagPrefix, olderThan, servicePrefix);
-            var releasedTags = repositoryMetadataProvider.GetReleaseValidVersionTags(Context.Configuration.GitTagPrefix, olderThan, servicePrefix, Context.Configuration.Tag);
+
+            var releasedTags = new List<Tuple<Tag, SemanticVersion>>();
+            foreach (var tag in allTags)
+            {
+                if (tag.Item1.FriendlyName.Split('-').Length == 1)
+                {
+                    releasedTags.Add(tag);
+                }
+            }
+
+            var alphaTags = new List<Tuple<Tag, SemanticVersion>>();
+            foreach (var tag in allTags)
+            {
+                if (tag.Item1.FriendlyName.Split('-').Length > 1)
+                {
+                    alphaTags.Add(tag);
+                }
+            }
 
             var tagsOnBranch = currentBranch
                 .Commits
@@ -61,9 +78,42 @@ namespace GitVersion.VersionCalculation
                 .Take(5)
                 .ToList();
 
+            var alphaTagsTagsOnBranch = currentBranch
+                .Commits
+                .SelectMany(commit => { return alphaTags.Where(t => IsValidTag(t.Item1, commit)); })
+                .Select(t =>
+                {
+                    if (t.Item1.PeeledTarget() is Commit)
+                        return new VersionTaggedCommit(t.Item1.PeeledTarget() as Commit, t.Item2, t.Item1.FriendlyName.Replace($"{servicePrefix}/", string.Empty));
+
+                    return null;
+                })
+                .Where(a => a != null)
+                .Take(5)
+                .ToList();
+
             var result = new List<BaseVersion>();
-            result.AddRange(tagsOnBranch.Select(t => CreateBaseVersion(Context, t)));
-            result.AddRange(releasedTagsOnBranch.Select(t => CreateBaseVersion(Context, t)));
+            tagsOnBranch.ForEach(t =>
+            {
+                if (!result.Any(b => b.SemanticVersion == t.SemVer))
+                {
+                    result.Add(CreateBaseVersion(Context, t));
+                }
+            });
+            releasedTagsOnBranch.ForEach(t =>
+            {
+                if (!result.Any(b => b.SemanticVersion == t.SemVer))
+                {
+                    result.Add(CreateBaseVersion(Context, t));
+                }
+            });
+            alphaTagsTagsOnBranch.ForEach(t =>
+            {
+                if (!result.Any(b => b.SemanticVersion == t.SemVer))
+                {
+                    result.Add(CreateBaseVersion(Context, t));
+                }
+            });
 
             return result
                 .OrderByDescending(t => t.BaseVersionSource.Author.When)

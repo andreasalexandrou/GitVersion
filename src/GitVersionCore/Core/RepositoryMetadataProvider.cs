@@ -414,46 +414,6 @@ namespace GitVersion
             return tags;
         }
 
-        public IEnumerable<Tuple<Tag, SemanticVersion>> GetReleaseValidVersionTags(string tagPrefixRegex, DateTimeOffset? olderThan = null, string servicePrefix = null, string versionTag = null)
-        {
-            var tags = new List<Tuple<Tag, SemanticVersion>>();
-
-            foreach (var tag in repository.Tags.OrderByDescending(t => ((Commit)t.PeeledTarget).Author.When))
-            {
-                bool pushToReleaseTags = false;
-
-                if (!(tag.PeeledTarget() is Commit commit) || (olderThan.HasValue && commit.When() > olderThan.Value))
-                    continue;
-
-                string friendlyName = tag.FriendlyName;
-                if (servicePrefix != null)
-                {
-                    if (!tag.CanonicalName.StartsWith($"refs/tags/{servicePrefix}"))
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        friendlyName = tag.FriendlyName.Replace($"{servicePrefix}/", string.Empty);
-
-                        // In case we have a version tag, should skip all the tags not related with the version tag
-                        var parts = friendlyName.Split('-');
-                        if (parts.Length == 1)
-                        {
-                            pushToReleaseTags = true;
-                        }
-                    }
-                }
-
-                if (SemanticVersion.TryParse(friendlyName, tagPrefixRegex, out var semver) && pushToReleaseTags)
-                {
-                    tags.Add(Tuple.Create(tag, semver));
-                }
-            }
-
-            return tags;
-        }
-
         public ICommitLog GetCommitLog(Commit baseVersionSource, Commit currentCommit)
         {
             var filter = new CommitFilter

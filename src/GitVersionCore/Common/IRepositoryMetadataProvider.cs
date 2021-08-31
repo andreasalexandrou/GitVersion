@@ -55,8 +55,6 @@ namespace GitVersion.Common
 
         IEnumerable<Tuple<Tag, SemanticVersion>> GetValidVersionTags(string tagPrefixRegex, DateTimeOffset? olderThan = null, string servicePrefix = null);
 
-        IEnumerable<Tuple<Tag, SemanticVersion>> GetReleaseValidVersionTags(string tagPrefixRegex, DateTimeOffset? olderThan = null, string servicePrefix = null, string versionTag = null);
-
         ICommitLog GetCommitLog(Commit baseVersionSource, Commit currentCommit);
 
         bool GetMatchingCommitBranch(Commit baseVersionSource, Branch branch, Commit firstMatchingCommit);
