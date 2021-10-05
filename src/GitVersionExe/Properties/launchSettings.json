@@ -2,7 +2,7 @@
   "profiles": {
     "GitVersionExe": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\code\\hyperio\\electra\\services\\Hyperio.Authorization.Api\" /output buildserver /nofetch -config \"C:\\Temp\\GitVersion.yml\""
+      "commandLineArgs": "\"C:\\code\\hyperio\\electra\" /output buildserver /nofetch -config \"C:\\Temp\\GitVersion.yml\" /nocache /nonormalize /verbosity Diagnostic /b origin/develop"
     }
   }
 }

@@ -411,7 +411,11 @@ namespace GitVersion
                 }
             }
 
-            return tags;
+            var result = tags
+                .OrderByDescending(t => ((Commit)t.Item1.Target).Author.When.UtcDateTime)
+                .ToList();
+
+            return result;
         }
 
         public ICommitLog GetCommitLog(Commit baseVersionSource, Commit currentCommit)

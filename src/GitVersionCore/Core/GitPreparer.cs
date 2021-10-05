@@ -1,10 +1,10 @@
-using System;
-using System.IO;
-using System.Linq;
 using GitVersion.Extensions;
 using GitVersion.Logging;
 using LibGit2Sharp;
 using Microsoft.Extensions.Options;
+using System;
+using System.IO;
+using System.Linq;
 
 namespace GitVersion
 {

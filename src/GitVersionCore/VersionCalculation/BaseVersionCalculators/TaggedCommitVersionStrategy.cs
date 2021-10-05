@@ -52,7 +52,7 @@ namespace GitVersion.VersionCalculation
 
             var tagsOnBranch = currentBranch
                 .Commits
-                .SelectMany(commit => { return allTags.Where(t => IsValidTag(t.Item1, commit)); })
+                .SelectMany(commit => { return allTags; })
                 .Select(t =>
                 {
                     if (t.Item1.PeeledTarget() is Commit)
@@ -66,7 +66,7 @@ namespace GitVersion.VersionCalculation
 
             var releasedTagsOnBranch = currentBranch
                 .Commits
-                .SelectMany(commit => { return releasedTags.Where(t => IsValidTag(t.Item1, commit)); })
+                .SelectMany(commit => { return releasedTags; })
                 .Select(t =>
                 {
                     if (t.Item1.PeeledTarget() is Commit)
@@ -80,7 +80,7 @@ namespace GitVersion.VersionCalculation
 
             var alphaTagsTagsOnBranch = currentBranch
                 .Commits
-                .SelectMany(commit => { return alphaTags.Where(t => IsValidTag(t.Item1, commit)); })
+                .SelectMany(commit => { return alphaTags; })
                 .Select(t =>
                 {
                     if (t.Item1.PeeledTarget() is Commit)
@@ -115,9 +115,7 @@ namespace GitVersion.VersionCalculation
                 }
             });
 
-            return result
-                .OrderByDescending(t => t.BaseVersionSource.Author.When)
-                .ToList();
+            return result;
         }
 
         private BaseVersion CreateBaseVersion(GitVersionContext context, VersionTaggedCommit version)
