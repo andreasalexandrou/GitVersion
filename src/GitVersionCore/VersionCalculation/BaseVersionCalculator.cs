@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using GitVersion.Common;
 using GitVersion.Configuration;
 using GitVersion.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace GitVersion.VersionCalculation
 {
@@ -54,7 +54,9 @@ namespace GitVersion.VersionCalculation
                     .ToList();
 
                 FixTheBaseVersionSourceOfMergeMessageStrategyIfReleaseBranchWasMergedAndDeleted(baseVersions);
-                var maxVersion = baseVersions.Aggregate((v1, v2) => v1.IncrementedVersion > v2.IncrementedVersion ? v1 : v2);
+                var maxVersion = string.IsNullOrEmpty(context.Configuration.Tag)
+                    ? baseVersions.Aggregate((v1, v2) => v1.IncrementedVersion > v2.IncrementedVersion ? v1 : v2)
+                    : baseVersions[1]; // AA: skipping the fallback version
                 var matchingVersionsOnceIncremented = baseVersions
                     .Where(b => b.Version.BaseVersionSource != null && b.IncrementedVersion == maxVersion.IncrementedVersion)
                     .ToList();
@@ -111,8 +113,6 @@ namespace GitVersion.VersionCalculation
                 }
             }
         }
-
-
 
         private bool ReleaseBranchExistsInRepo()
         {
