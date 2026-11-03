@@ -167,9 +167,9 @@ namespace GitVersion
                 {
                     var cloneOptions = new CloneOptions
                     {
-                        Checkout = false,
-                        CredentialsProvider = (url, usernameFromUrl, types) => credentials
+                        Checkout = false
                     };
+                    cloneOptions.FetchOptions.CredentialsProvider = (url, usernameFromUrl, types) => credentials;
 
                     var returnedPath = Repository.Clone(repositoryUrl, gitDirectory, cloneOptions);
                     log.Info($"Returned path after repository clone: {returnedPath}");

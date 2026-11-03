@@ -132,7 +132,7 @@ namespace GitVersion
 
         public LibGit2Sharp.Configuration Config => repositoryInstance.Config;
 
-        public Index Index => repositoryInstance.Index;
+        public LibGit2Sharp.Index Index => repositoryInstance.Index;
 
         public ReferenceCollection Refs => repositoryInstance.Refs;
 
